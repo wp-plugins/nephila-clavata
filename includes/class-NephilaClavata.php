@@ -434,17 +434,20 @@ class NephilaClavata {
         $sizes = $this->get_attachment_sizes($attachment_id);
         $images = array();
         foreach ($sizes as $size) {
-            $home_path = function_exists('get_home_path') ? get_home_path() : ABSPATH;
+            $upload_dir_config = wp_upload_dir();
+            $content_path = $upload_dir_config['basedir'];
+            $content_url = $upload_dir_config['baseurl'];
+
             if ( $image_src = wp_get_attachment_image_src($attachment_id, $size) ) {
                 $images[$size] = array(
                     'url'    => $image_src[0],
-                    'file'   => str_replace(site_url('/'), $home_path, $image_src[0]),
+                    'file'   => str_replace($content_url, $content_path, $image_src[0]),
                     's3_key' => preg_replace('#https?://[^/]*/#i', '/', $image_src[0]),
                 );
             } elseif ($attachment_url = wp_get_attachment_url($attachment_id, $size) ) {
                 $images[$size] = array(
                     'url'    => $attachment_url,
-                    'file'   => str_replace(site_url('/'), $home_path, $attachment_url),
+                    'file'   => str_replace($content_url, $content_path, $attachment_url),
                     's3_key' => preg_replace('#https?://[^/]*/#i', '/', $attachment_url),
                 );
             }
